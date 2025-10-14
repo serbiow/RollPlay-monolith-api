@@ -23,16 +23,41 @@ class AuthController {
     }
 
     async signIn(req, res) {
-        // A autenticação de login deve ser feita no cliente e o ID Token enviado para o backend para verificação.
-        // Este endpoint é um placeholder para o fluxo de verificação de token, não para o login direto.
-        return res.status(501).json({ message: "Login deve ser feito no cliente. Envie o ID Token para verificação." });
+        const { email, password } = req.body;
+
+        if (!email && !password) {
+            return res.status(400).json({ message: "Dados inválidos" });
+        }
+
+        try {
+            const result = await this.authService.userLogin(email, password);
+
+            if (result.success === false) {
+                return res.status(400).json({ message: "Email não verificado" });
+            }
+            return res.status(200).json({ message: "Login realizado com sucesso", result })
+        } catch (error) {
+            console.error("[AuthController::userLogin]: ", error);
+            return res.status(500).json({ message: "Erro ao realizar login", error });
+        }
     }
 
-    async passwordReset(req, res) {
-        // O reset de senha deve ser feito no cliente ou via Firebase Cloud Functions.
-        return res.status(501).json({ message: "Reset de senha deve ser feito no cliente ou via Cloud Functions." });
+    async userPasswordReset(req, res) {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email inválido" });
+        }
+
+        try {
+            await this.authService.sendPasswordResetEmail(email);
+            return res.status(200).json({ message: "Email de recuperação enviado com sucesso" });
+        } catch (error) {
+            console.error("[AuthController::passwordReset]:", error);
+            return res.status(500).json({ message: "Erro ao enviar email de recuperação", error });
+        }
     }
+
 }
 
 export default AuthController;
-

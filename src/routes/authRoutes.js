@@ -1,12 +1,11 @@
-import express from 'express';
-import AuthController from '../controllers/authController.js';
+import express from "express";
+import AuthController from "../controllers/authController.js";
 
-const router = express.Router();
+const authRouter = express.Router();
 const authController = new AuthController();
 
-router.post('/signup', authController.signUp.bind(authController));
-router.post('/signin', authController.signIn.bind(authController));
-router.post('/password-reset', authController.passwordReset.bind(authController));
+authRouter.post("/signup", authController.userSignUp.bind(authController));
+authRouter.post("/login", authController.userLogin.bind(authController)); 
+authRouter.post("/passwordReset", authController.userPasswordReset.bind(authController));
 
-export default router;
-
+export default authRouter;

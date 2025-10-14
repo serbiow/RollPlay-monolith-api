@@ -1,36 +1,70 @@
-import { auth } from "../config/firebase.js";
+import DoAuth from "../config/auth.js";
 
 class AuthService {
-    async userSignUp(userData) {
-        const { email, password, displayName } = userData;
+    constructor() {
+        this.doAuth = new DoAuth();
+    }
+
+    async userSignUp(email, password) {
         try {
-            const userRecord = await auth.createUser({
-                email: email,
-                password: password,
-                displayName: displayName,
-            });
-            return { uid: userRecord.uid, email: userRecord.email, displayName: userRecord.displayName };
+            const result = await this.doAuth.doCreateUserWithEmailAndPassword(email, password);
+
+            if (!result.success){
+                console.error("Erro ao cadastrar usuário");
+            }
+            
+            return result;
+
         } catch (error) {
-            throw new Error(error.message);
+            console.error("[AuthService::userSignUp]: " , error);
         }
     }
 
-    async userSignIn(email, password) {
-        // Firebase Admin SDK não possui um método direto para 'signInWithEmailAndPassword'
-        // Para login, o cliente deve autenticar-se e enviar o ID Token para o backend para verificação.
-        // Este método é um placeholder ou pode ser usado para gerar um token personalizado para o cliente.
-        // Para este cenário, vamos simular a verificação de credenciais e gerar um token personalizado.
-        // Em um ambiente real, a autenticação inicial seria feita no cliente.
-        throw new Error("Sign-in via Admin SDK is not directly supported. Client should authenticate and send ID Token.");
+    async userLogin(email, password) {
+        try {
+            const userCredendial = await this.doAuth.doSignInWithEmailAndPassword(email, password);
+            if (!userCredendial.data.emailVerified) {
+                return {
+                    success: false,
+                    message: "E-mail não verificado"
+                }
+            }
+            return {
+                success: true,
+                message: "Login realizado com sucesso",
+                userData: userCredendial.data
+            };
+        } catch (error) {
+            console.error("[AuthService::userLogin]:", error);
+            throw error;
+        }
     }
 
-    async sendPasswordResetEmail(email) {
-        // O Firebase Admin SDK não tem um método direto para enviar e-mails de redefinição de senha.
-        // Isso geralmente é feito no lado do cliente usando o SDK do cliente Firebase.
-        // Para um backend, você precisaria usar uma API de e-mail ou o SDK do cliente em um ambiente de função em nuvem.
-        throw new Error("Password reset email cannot be sent directly from Admin SDK. Use client SDK or a cloud function.");
+    async userPasswordReset(email) {
+         try {
+            await this.doAuth.doPasswordReset(email);
+            return {
+                success: true,
+                message: "E-mail de redefinição enviado com sucesso"
+            }
+        } catch (error) {
+            console.error("[AuthService::sendPasswordResetEmail]:", error);
+            throw error;
+        }
+    }
+
+    async deleteUserAccount(uid){
+        try {
+            await this.doAuth.doDeleteUser(uid);
+            return {
+                succes: true,
+                message: "Conta excluida com sucesso"
+            }
+        } catch (error) {
+            console.error("[AuthService::deleteUserAccount]: ", error);
+            throw error;
+        }
     }
 }
 
 export default AuthService;
-
