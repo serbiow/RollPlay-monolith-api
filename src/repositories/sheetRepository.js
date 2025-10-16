@@ -7,41 +7,33 @@ class SheetRepository {
     }
 
     async createSheet(sheetData) {
-        const sheetRef = this.collection.doc(sheetData.uid);
-        await sheetRef.set(sheetData.toFirestore());
-        return { uid: sheetData.uid, ...sheetData.toFirestore() };
+        const sheet = sheetData instanceof Sheet ? sheetData : new Sheet(sheetData);
+        const ref = this.collection.doc(sheet.uid);
+        await ref.set(sheet.toFirestore(), { merge: false });
+        return { uid: sheet.uid, ...sheet.toFirestore() };
     }
 
     async getSheetByUid(uid) {
         const doc = await this.collection.doc(uid).get();
-        if (!doc.exists) {
-            return null;
-        }
-        return Sheet.fromFirestore(doc);
+        return doc.exists ? Sheet.fromFirestore(doc) : null;
     }
 
     async getSheetBySessionUid(sessionUid) {
-        // Assuming sessionUid is stored in a field within the sheet document
-        const snapshot = await this.collection.where('sessionUid', '==', sessionUid).get();
-        if (snapshot.empty) {
-            return null;
-        }
-        return snapshot.docs.map(doc => Sheet.fromFirestore(doc));
+        const snap = await this.collection.where('sessionUid', '==', sessionUid).get();
+        if (snap.empty) return [];
+        return snap.docs.map((d) => Sheet.fromFirestore(d));
     }
 
     async getSheetByUserUid(userUid) {
-        const snapshot = await this.collection.where('userUid', '==', userUid).get();
-        if (snapshot.empty) {
-            return null;
-        }
-        return snapshot.docs.map(doc => Sheet.fromFirestore(doc));
+        const snap = await this.collection.where('userUid', '==', userUid).get();
+        if (snap.empty) return [];
+        return snap.docs.map((d) => Sheet.fromFirestore(d));
     }
 
-    async updateSheet(uid, sheetData) {
-        const sheetRef = this.collection.doc(uid);
-        await sheetRef.update(sheetData);
-        const updatedDoc = await sheetRef.get();
-        return Sheet.fromFirestore(updatedDoc);
+    async updateSheet(uid, partialData) {
+        await this.collection.doc(uid).set(partialData, { merge: true });
+        const updated = await this.collection.doc(uid).get();
+        return Sheet.fromFirestore(updated);
     }
 
     async deleteSheet(uid) {

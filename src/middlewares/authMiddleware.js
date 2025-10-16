@@ -1,21 +1,21 @@
-import { auth } from "../config/firebase.js";
+import { auth } from '../config/firebase.js';
+import { unauthorized } from '../utils/response.js';
 
-const authMiddleware = async (req, res, next) => {
-    const idToken = req.headers.authorization?.split('Bearer ')[1];
-
-    if (!idToken) {
-        return res.status(401).json({ message: "Nenhum token de autenticação fornecido." });
-    }
-
+export async function authMiddleware(req, res, next) {
     try {
-        const decodedToken = await auth.verifyIdToken(idToken);
-        req.user = decodedToken; // Adiciona as informações do usuário decodificadas à requisição
-        next();
-    } catch (error) {
-        console.error("[authMiddleware]:", error);
-        return res.status(403).json({ message: "Token de autenticação inválido ou expirado." });
+        const header = req.headers.authorization || '';
+        const [scheme, token] = header.split(' ');
+
+
+        if (scheme !== 'Bearer' || !token) {
+            return res.status(401).json(unauthorized('Missing or invalid Authorization header'));
+        }
+
+
+        const decoded = await auth.verifyIdToken(token);
+        req.user = { uid: decoded.uid, email: decoded.email, decoded };
+        return next();
+    } catch (err) {
+        return res.status(401).json(unauthorized('Invalid or expired token', err.message));
     }
-};
-
-export default authMiddleware;
-
+}

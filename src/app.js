@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { db, auth } from './config/firebase.js';
+import helmet from 'helmet';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import sheetRoutes from './routes/sheetRoutes.js';
@@ -14,6 +14,7 @@ const app = express();
 
 // Middlewares
 app.use(cors());
+app.use(helmet());
 app.use(express.json());
 
 // Rotas

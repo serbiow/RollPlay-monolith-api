@@ -1,11 +1,11 @@
 import express from "express";
-import AuthController from "../controllers/authController.js";
+import { authController } from "../controllers/authController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const authRouter = express.Router();
-const authController = new AuthController();
 
-authRouter.post("/signup", authController.userSignUp.bind(authController));
-authRouter.post("/login", authController.userLogin.bind(authController)); 
-authRouter.post("/passwordReset", authController.userPasswordReset.bind(authController));
+authRouter.post("/signup", authController.signUp.bind(authController));
+authRouter.post("/reset-password", authController.resetPassword.bind(authController));
+authRouter.post("/profile", authMiddleware, authController.getProfile.bind(authController));
 
 export default authRouter;

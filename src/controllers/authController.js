@@ -1,63 +1,32 @@
-import AuthService from "../services/authService.js";
+import { authService } from '../services/authService.js';
+import { ok, created, badRequest } from '../utils/response.js';
 
-class AuthController {
-    constructor() {
-        this.authService = new AuthService();
-    }
 
-    async signUp(req, res) {
-        const { displayName, email, password } = req.body;
-
-        if (!email || !password || !displayName) {
-            return res.status(400).json({ message: "Dados inválidos para registro." });
-        }
-
+export const authController = {
+    async signUp(req, res, next) {
         try {
-            const user = { displayName, email, password };
-            const result = await this.authService.userSignUp(user);
-            return res.status(201).json({ message: "Usuário registrado com sucesso!", user: result });
-        } catch (error) {
-            console.error("[AuthController::signUp]:", error);
-            return res.status(500).json({ message: error.message });
-        }
-    }
+            const { email, password, displayName } = req.body;
+            if (!email || !password) return res.status(400).json(badRequest('email e password são obrigatórios'));
+            const user = await authService.signup({ email, password, displayName });
+            return res.status(201).json(created(user, 'Usuário criado'));
+        } catch (err) { next(err); }
+    },
 
-    async signIn(req, res) {
-        const { email, password } = req.body;
 
-        if (!email && !password) {
-            return res.status(400).json({ message: "Dados inválidos" });
-        }
-
+    async resetPassword(req, res, next) {
         try {
-            const result = await this.authService.userLogin(email, password);
+            const { email } = req.body;
+            if (!email) return res.status(400).json(badRequest('email é obrigatório'));
+            const result = await authService.resetPassword(email);
+            return res.json(ok(result, 'Link de redefinição gerado'));
+        } catch (err) { next(err); }
+    },
 
-            if (result.success === false) {
-                return res.status(400).json({ message: "Email não verificado" });
-            }
-            return res.status(200).json({ message: "Login realizado com sucesso", result })
-        } catch (error) {
-            console.error("[AuthController::userLogin]: ", error);
-            return res.status(500).json({ message: "Erro ao realizar login", error });
-        }
-    }
 
-    async userPasswordReset(req, res) {
-        const { email } = req.body;
-
-        if (!email) {
-            return res.status(400).json({ message: "Email inválido" });
-        }
-
+    async getProfile(req, res, next) {
         try {
-            await this.authService.sendPasswordResetEmail(email);
-            return res.status(200).json({ message: "Email de recuperação enviado com sucesso" });
-        } catch (error) {
-            console.error("[AuthController::passwordReset]:", error);
-            return res.status(500).json({ message: "Erro ao enviar email de recuperação", error });
-        }
+            const profile = await authService.getProfile(req.user.uid);
+            return res.json(ok(profile));
+        } catch (err) { next(err); }
     }
-
-}
-
-export default AuthController;
+};

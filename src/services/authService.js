@@ -1,70 +1,22 @@
-import DoAuth from "../config/auth.js";
+import { auth } from '../config/firebase.js';
+import { userRepository } from '../repositories/userRepository.js';
 
-class AuthService {
-    constructor() {
-        this.doAuth = new DoAuth();
+
+export const authService = {
+    async signup({ email, password, displayName }) {
+        const user = await userRepository.createUser({ email, password, displayName });
+        return user;
+    },
+
+
+    async resetPassword(email) {
+        const link = await auth.generatePasswordResetLink(email);
+        return { email, link };
+    },
+
+
+    async getProfile(uid) {
+        const user = await userRepository.getUserById(uid);
+        return user;
     }
-
-    async userSignUp(email, password) {
-        try {
-            const result = await this.doAuth.doCreateUserWithEmailAndPassword(email, password);
-
-            if (!result.success){
-                console.error("Erro ao cadastrar usuário");
-            }
-            
-            return result;
-
-        } catch (error) {
-            console.error("[AuthService::userSignUp]: " , error);
-        }
-    }
-
-    async userLogin(email, password) {
-        try {
-            const userCredendial = await this.doAuth.doSignInWithEmailAndPassword(email, password);
-            if (!userCredendial.data.emailVerified) {
-                return {
-                    success: false,
-                    message: "E-mail não verificado"
-                }
-            }
-            return {
-                success: true,
-                message: "Login realizado com sucesso",
-                userData: userCredendial.data
-            };
-        } catch (error) {
-            console.error("[AuthService::userLogin]:", error);
-            throw error;
-        }
-    }
-
-    async userPasswordReset(email) {
-         try {
-            await this.doAuth.doPasswordReset(email);
-            return {
-                success: true,
-                message: "E-mail de redefinição enviado com sucesso"
-            }
-        } catch (error) {
-            console.error("[AuthService::sendPasswordResetEmail]:", error);
-            throw error;
-        }
-    }
-
-    async deleteUserAccount(uid){
-        try {
-            await this.doAuth.doDeleteUser(uid);
-            return {
-                succes: true,
-                message: "Conta excluida com sucesso"
-            }
-        } catch (error) {
-            console.error("[AuthService::deleteUserAccount]: ", error);
-            throw error;
-        }
-    }
-}
-
-export default AuthService;
+};
