@@ -1,23 +1,75 @@
-import { auth } from '../config/firebase.js';
+import admin from 'firebase-admin';
+import { db } from '../config/firebase.js';
+import User from "../models/userModel.js";
 
-export const userRepository = {
-    async createUser({ email, password, displayName }) {
-        const userRecord = await auth.createUser({ email, password, displayName });
-        return userRecord;
-    },
+class UserRepository {
+    constructor() {
+        this.collection = db.collection('user');
+    }
 
-    async getUserById(uid) {
-        const userRecord = await auth.getUser(uid);
-        return userRecord;
-    },
+    async createUser(uid, userData) {
+        // aceita tanto instância de User quanto dados puros
+        const user = userData instanceof User ? userData : new User(uid, userData?.displayName ?? null, userData?.email ?? null);
+        const ref = this.collection.doc(uid);
+        await ref.set(user.toFirestore(), { merge: false });
+        return { uid, ...user.toFirestore() };
+    }
 
-    async updateUser(uid, payload) {
-        const updated = await auth.updateUser(uid, payload);
-        return updated;
-    },
+    async getUserByUid(uid) {
+        const doc = await this.collection.doc(uid).get();
+        return doc.exists ? User.fromFirestore(doc) : null;
+    }
+
+    async getUserByEmail(email) {
+        const snap = await this.collection.where('email', '==', email).limit(1).get();
+        if (snap.empty) return null;
+        return User.fromFirestore(snap.docs[0]);
+    }
+
+    async getAllUsers() {
+        const snap = await this.collection.get();
+        return snap.docs.map((d) => User.fromFirestore(d)).filter(Boolean);
+    }
+
+    async updateUser(uid, partialData) {
+        await this.collection.doc(uid).set(partialData, { merge: true });
+        const updated = await this.collection.doc(uid).get();
+        return User.fromFirestore(updated);
+    }
 
     async deleteUser(uid) {
-        await auth.deleteUser(uid);
-        return { uid };
+        await this.collection.doc(uid).delete();
+        return { message: 'User deleted successfully' };
     }
-};
+
+    async deactivateUser(uid) {
+        const now = admin.firestore.FieldValue.serverTimestamp();
+        await this.collection.doc(uid).set(
+            {
+                active: false,
+                deactivatedAt: now,
+                updatedAt: now,
+            },
+            { merge: true }
+        );
+        const doc = await this.collection.doc(uid).get();
+        return User.fromFirestore(doc);
+    }
+
+    async reactivateUser(uid) {
+        const now = admin.firestore.FieldValue.serverTimestamp();
+        await this.collection.doc(uid).set(
+            {
+                active: true,
+                reactivatedAt: now,
+                updatedAt: now,
+                deactivatedAt: admin.firestore.FieldValue.delete(),
+            },
+            { merge: true }
+        );
+        const doc = await this.collection.doc(uid).get();
+        return User.fromFirestore(doc);
+    }
+}
+
+export default UserRepository;
