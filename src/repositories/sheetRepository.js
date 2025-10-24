@@ -3,7 +3,7 @@ import Sheet from '../models/sheetModel.js';
 
 class SheetRepository {
     constructor() {
-        this.collection = db.collection('sheets');
+        this.collection = db.collection('sheet');
     }
 
     async createSheet(sheetData) {

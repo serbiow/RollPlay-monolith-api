@@ -3,7 +3,7 @@ import Campaign from '../models/campaignModel.js';
 
 class CampaignRepository {
     constructor() {
-        this.collection = db.collection('campaigns');
+        this.collection = db.collection('campaign');
     }
 
     async createCampaign(campaignData) {
