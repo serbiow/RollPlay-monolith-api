@@ -78,7 +78,7 @@ A API estará rodando em `http://localhost:3000` (ou na porta especificada em se
 ### Fichas de Personagem (`/sheets`)
 - `POST /sheets`: Cria uma nova ficha de personagem. (Corpo: `userUid`, `name`, `characterClass`, `level`, `race`, `alignment`, `background`, `attributes`, `skills`, `hp`, `ac`, `speed`, `initiative`, `inventory`, `spells`, `features`, `notes`)
 - `GET /sheets/:uid`: Busca uma ficha pelo UID.
-- `GET /sheets/session/:sessionUid`: Busca fichas por UID de sessão. (Nota: `sessionUid` não está implementado no modelo atual, será necessário adicionar ao modelo `Sheet` se for usado).
+- `GET /sheets/campaign/:campaignUid`: Busca fichas por UID de sessão. (Nota: `campaignUid` não está implementado no modelo atual, será necessário adicionar ao modelo `Sheet` se for usado).
 - `GET /sheets/user/:userUid`: Busca fichas por UID de usuário.
 - `PUT /sheets/:uid`: Atualiza uma ficha. (Corpo: campos a serem atualizados)
 - `DELETE /sheets/:uid`: Deleta uma ficha.

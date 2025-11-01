@@ -1,32 +1,68 @@
 import SheetRepository from "../repositories/sheetRepository.js";
 import Sheet from "../models/sheetModel.js";
 
+function normalizeIncoming(data = {}) {
+    const out = { ...data };
+
+    // Validação para o modelo de spellcasting
+    if (!out.spellcasting && out.spells) {
+        out.spellcasting = {
+            hasSpellcasting: Array.isArray(out.spells) && out.spells.length > 0,
+            spellcastingAbility: null,
+            spellSaveDC: null,
+            spellAttackBonus: null,
+            spellcastingMod: null,
+            preparedCount: null,
+            cantrips: [],
+            spellsByLevel: {
+                "0": { slots: { total: 0, expended: 0 }, spells: [] },
+                "1": { slots: { total: 0, expended: 0 }, spells: [] },
+                "2": { slots: { total: 0, expended: 0 }, spells: [] },
+                "3": { slots: { total: 0, expended: 0 }, spells: [] },
+                "4": { slots: { total: 0, expended: 0 }, spells: [] },
+                "5": { slots: { total: 0, expended: 0 }, spells: [] },
+                "6": { slots: { total: 0, expended: 0 }, spells: [] },
+                "7": { slots: { total: 0, expended: 0 }, spells: [] },
+                "8": { slots: { total: 0, expended: 0 }, spells: [] },
+                "9": { slots: { total: 0, expended: 0 }, spells: [] }
+            },
+            spellNotes: ""
+        };
+        delete out.spells;
+    }
+
+    return out;
+}
+
 class SheetService {
     constructor() {
         this.sheetRepository = new SheetRepository();
     }
 
     async createSheet(sheetData) {
-        const newSheet = new Sheet(
-            sheetData.uid, // Assuming UID is provided or generated before this point
-            sheetData.userUid,
-            sheetData.name || "New Character",
-            sheetData.characterClass || "",
-            sheetData.level || 1,
-            sheetData.race || "",
-            sheetData.alignment || "",
-            sheetData.background || "",
-            sheetData.attributes || { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 },
-            sheetData.skills || { acrobatics: 0, stealth: 0 },
-            sheetData.hp || 10,
-            sheetData.ac || 10,
-            sheetData.speed || 30,
-            sheetData.initiative || 0,
-            sheetData.inventory || [],
-            sheetData.spells || [],
-            sheetData.features || [],
-            sheetData.notes || ""
-        );
+        const now = new Date();
+        const normalized = normalizeIncoming(sheetData);
+
+        const newSheet = new Sheet({
+            ...normalized,
+            // Defaults mínimos caso algo essencial venha faltando
+            name: normalized.name ?? "New Character",
+            level: normalized.level ?? 1,
+            speed: normalized.speed ?? { walk: 9, swim: 0, fly: 0, climb: 0, burrow: 0 },
+            ac: normalized.ac ?? {
+                value: 10,
+                breakdown: { base: 10, dex: 0, armor: 0, shield: 0, misc: 0 },
+                shieldEquipped: false
+            },
+            hp: normalized.hp ?? {
+                current: 1, max: 1, temp: 0,
+                hitDice: { type: "d8", max: 1, spent: 0 }
+            },
+            createdAt: normalized.createdAt ?? now,
+            updatedAt: normalized.updatedAt ?? now,
+            schemaVersion: normalized.schemaVersion ?? 2
+        });
+
         return this.sheetRepository.createSheet(newSheet);
     }
 
@@ -38,10 +74,10 @@ class SheetService {
         return sheet;
     }
 
-    async getSheetBySessionUid(sessionUid) {
-        const sheets = await this.sheetRepository.getSheetBySessionUid(sessionUid);
+    async getSheetByCampaignUid(campaignUid) {
+        const sheets = await this.sheetRepository.getSheetByCampaignUid(campaignUid);
         if (!sheets || sheets.length === 0) {
-            throw new Error("No sheets found for this session.");
+            throw new Error("No sheets found for this campaign.");
         }
         return sheets;
     }
@@ -59,7 +95,17 @@ class SheetService {
         if (!existingSheet) {
             throw new Error("Sheet not found.");
         }
-        const updatedData = { ...sheetData, updatedAt: new Date() };
+
+        const normalized = normalizeIncoming(sheetData);
+
+        // Não permitir mudança de uid
+        delete normalized.uid;
+
+        const updatedData = {
+            ...normalized,
+            updatedAt: new Date()
+        };
+
         return this.sheetRepository.updateSheet(uid, updatedData);
     }
 
@@ -73,4 +119,3 @@ class SheetService {
 }
 
 export default SheetService;
-
