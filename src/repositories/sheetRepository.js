@@ -8,8 +8,20 @@ class SheetRepository {
 
     async createSheet(sheetData) {
         const sheet = sheetData instanceof Sheet ? sheetData : new Sheet(sheetData);
-        const ref = this.collection.doc(sheet.uid);
+
+        // Gera uid se não existir
+        let ref;
+        if (!sheet.uid) {
+            ref = this.collection.doc();
+            sheet.uid = ref.id;
+        } else {
+            ref = this.collection.doc(sheet.uid);
+        }
+
+        // Grava
         await ref.set(sheet.toFirestore(), { merge: false });
+
+        // Retorna payload já com uid
         return { uid: sheet.uid, ...sheet.toFirestore() };
     }
 
@@ -18,8 +30,10 @@ class SheetRepository {
         return doc.exists ? Sheet.fromFirestore(doc) : null;
     }
 
-    async getSheetBySessionUid(sessionUid) {
-        const snap = await this.collection.where('sessionUid', '==', sessionUid).get();
+    // OBS: campaignUid não faz parte do schema novo por padrão.
+    // Se você decidir usar em sessões, grave esse campo no documento.
+    async getSheetByCampaignUid(campaignUid) {
+        const snap = await this.collection.where('campaignUid', '==', campaignUid).get();
         if (snap.empty) return [];
         return snap.docs.map((d) => Sheet.fromFirestore(d));
     }
@@ -43,4 +57,3 @@ class SheetRepository {
 }
 
 export default SheetRepository;
-

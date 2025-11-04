@@ -6,34 +6,19 @@ class SheetController {
     }
 
     async createSheet(req, res) {
-        const { userUid, name, characterClass, level, race, alignment, background, attributes, skills, hp, ac, speed, initiative, inventory, spells, features, notes } = req.body;
-        const uid = req.headers["x-sheet-uid"]; // Assuming UID for the sheet is passed in header or generated
+        const uidFromHeader = req.headers["x-sheet-uid"]; // opcional
+        const body = req.body || {};
 
-        if (!userUid) {
+        if (!body.userUid) {
             return res.status(400).json({ message: "UID do usuário é obrigatório para criar uma ficha." });
         }
 
         try {
             const newSheetData = {
-                uid: uid || Date.now().toString(), // Simple UID generation if not provided
-                userUid,
-                name,
-                characterClass,
-                level,
-                race,
-                alignment,
-                background,
-                attributes,
-                skills,
-                hp,
-                ac,
-                speed,
-                initiative,
-                inventory,
-                spells,
-                features,
-                notes
+                ...body,
+                uid: body.uid || uidFromHeader // pode vir do header ou do body; se nenhum vier, será gerado no repositório
             };
+
             const result = await this.sheetService.createSheet(newSheetData);
             return res.status(201).json({ message: "Ficha criada com sucesso!", sheet: result });
         } catch (error) {
@@ -44,7 +29,6 @@ class SheetController {
 
     async getSheetByUid(req, res) {
         const { uid } = req.params;
-
         if (!uid) {
             return res.status(400).json({ message: "UID da ficha inválido." });
         }
@@ -58,25 +42,23 @@ class SheetController {
         }
     }
 
-    async getSheetBySessionUid(req, res) {
-        const { sessionUid } = req.params;
-
-        if (!sessionUid) {
+    async getSheetByCampaignUid(req, res) {
+        const { campaignUid } = req.params;
+        if (!campaignUid) {
             return res.status(400).json({ message: "UID da sessão inválido." });
         }
 
         try {
-            const sheets = await this.sheetService.getSheetBySessionUid(sessionUid);
+            const sheets = await this.sheetService.getSheetByCampaignUid(campaignUid);
             return res.status(200).json({ sheets });
         } catch (error) {
-            console.error("[SheetController::getSheetBySessionUid]:", error);
+            console.error("[SheetController::getSheetByCampaignUid]:", error);
             return res.status(404).json({ message: error.message });
         }
     }
 
     async getSheetByUserUid(req, res) {
         const { userUid } = req.params;
-
         if (!userUid) {
             return res.status(400).json({ message: "UID do usuário inválido." });
         }
@@ -109,7 +91,6 @@ class SheetController {
 
     async deleteSheet(req, res) {
         const { uid } = req.params;
-
         if (!uid) {
             return res.status(400).json({ message: "UID da ficha inválido." });
         }
@@ -125,4 +106,3 @@ class SheetController {
 }
 
 export default SheetController;
-
