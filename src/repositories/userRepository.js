@@ -17,7 +17,6 @@ class UserRepository {
 
     async getUserByUid(uid) {
         const doc = await this.collection.doc(uid).get();
-        console.log("Fala gurizada");
         return doc.exists ? User.fromFirestore(doc) : null;
     }
 
