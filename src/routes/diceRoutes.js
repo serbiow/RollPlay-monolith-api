@@ -7,4 +7,3 @@ const diceController = new DiceController();
 router.post('/roll', diceController.rollDice.bind(diceController));
 
 export default router;
-

@@ -72,6 +72,21 @@ class SheetController {
         }
     }
 
+    async getSheetByUserToken(req, res) {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+
+        try {
+            const sheets = await this.sheetService.getSheetByUserToken(authHeader);
+            return res.status(200).json({ sheets });
+        } catch (error) {
+            console.error("[SheetController::getSheetByUserToken]:", error);
+            return res.status(404).json({ message: error.message });
+        }
+    }
+
     async updateSheet(req, res) {
         const { uid } = req.params;
         const sheetData = req.body;

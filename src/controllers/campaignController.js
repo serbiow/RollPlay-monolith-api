@@ -44,7 +44,7 @@ class CampaignController {
             return res.status(404).json({ message: error.message });
         }
     }
-
+    
     async getCampaignByUserUid(req, res) {
         const { userUid } = req.params;
 
@@ -57,6 +57,22 @@ class CampaignController {
             return res.status(200).json({ campaigns });
         } catch (error) {
             console.error("[CampaignController::getCampaignByUserUid]:", error);
+            return res.status(404).json({ message: error.message });
+        }
+    }
+
+    async getCampaignByUserToken(req, res) {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+
+        try {
+            const campaigns = await this.campaignService.getCampaignByUserToken(authHeader);
+            return res.status(200).json({ campaigns });
+        } catch (error) {
+            console.error("[CampaignController::getCampaignByUserToken]:", error);
             return res.status(404).json({ message: error.message });
         }
     }

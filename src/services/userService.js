@@ -49,6 +49,21 @@ class UserService {
         return user;
     }
 
+    async getUserByToken(token) {
+        // formatar o token
+        const formattedToken = token.replace('Bearer ', '');
+        const decodedToken = await auth.verifyIdToken(formattedToken);
+
+        // pega o UID do sub do token
+        const uid = decodedToken.user_id;
+
+        const user = await this.userRepository.getUserByUid(uid);
+        if (!user) {
+            throw new Error("User not found.");
+        }
+        return user;
+    }
+
     async getUserByEmail(email) {
         const user = await this.userRepository.getUserByEmail(email);
         if (!user) {
