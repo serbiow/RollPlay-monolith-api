@@ -11,7 +11,7 @@ export const userController = {
 
             // enviar objeto de dados; service cria o user no Auth e usa o UID gerado
             const user = await userService.createUser({ email, password, displayName });
-            return res.status(201).json(created(user, 'Usuário criado com sucesso.'));
+            return res.status(201).json(created(user, 'Usuário criado com sucessoooooo.'));
         } catch (err) {
             next(err);
         }
