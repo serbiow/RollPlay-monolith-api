@@ -44,7 +44,7 @@ class CampaignController {
             return res.status(404).json({ message: error.message });
         }
     }
-    
+
     async getCampaignByUserUid(req, res) {
         const { userUid } = req.params;
 
@@ -74,6 +74,30 @@ class CampaignController {
         } catch (error) {
             console.error("[CampaignController::getCampaignByUserToken]:", error);
             return res.status(404).json({ message: error.message });
+        }
+    }
+
+    async enterCampaign(req, res) {
+        const authHeader = req.headers.authorization;
+        const { campaignUid } = req.body;
+
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+
+        if (!campaignUid) {
+            return res.status(400).json({ message: "UID da campanha é obrigatório." });
+        }
+
+        try {
+            const updatedCampaign = await this.campaignService.enterCampaign(authHeader, campaignUid);
+            return res.status(200).json({
+                message: "Usuário entrou na campanha com sucesso!",
+                campaign: updatedCampaign
+            });
+        } catch (error) {
+            console.error("[CampaignController::enterCampaign]:", error);
+            return res.status(400).json({ message: error.message });
         }
     }
 

@@ -4,7 +4,7 @@ class Campaign {
         this.userUid = userUid;
         this.name = name;
         this.description = description;
-        this.players = players; // Array of user UIDs
+        this.players = players;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

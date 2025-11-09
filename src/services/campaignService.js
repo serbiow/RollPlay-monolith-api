@@ -9,7 +9,7 @@ class CampaignService {
 
     async createCampaign(campaignData) {
         const newCampaign = new Campaign(
-            campaignData.uid || Date.now().toString(), // Simple UID generation if not provided
+            campaignData.uid || Date.now().toString(),
             campaignData.userUid,
             campaignData.name,
             campaignData.description || "",
@@ -47,6 +47,38 @@ class CampaignService {
             throw new Error("Nenhuma campanha encontrada para este usuário.");
         }
         return campaigns;
+    }
+
+    async enterCampaign(token, campaignUid) {
+        // formatar o token
+        const formattedToken = token.replace('Bearer ', '');
+        const decodedToken = await auth.verifyIdToken(formattedToken);
+
+        // pega o UID e nome do usuário do token
+        const userUid = decodedToken.user_id;
+        const userName = decodedToken.name || "Jogador";
+
+        // verificar se a campanha existe
+        const campaign = await this.campaignRepository.getCampaignByUid(campaignUid);
+        if (!campaign) {
+            throw new Error("Campanha não encontrada.");
+        }
+
+        // verificar se o jogador ja ta na campanha
+        const existingPlayer = campaign.players.find(player => player.userUid === userUid);
+        if (existingPlayer) {
+            throw new Error("Usuário já está na campanha.");
+        }
+
+        // formar o novo jogador
+        const newPlayer = {
+            userUid,
+            userName,
+            role: "player"
+        };
+
+        const updatedPlayers = [...campaign.players, newPlayer];
+        return this.campaignRepository.updateCampaign(campaignUid, { players: updatedPlayers });
     }
 
     async updateCampaign(uid, campaignData) {

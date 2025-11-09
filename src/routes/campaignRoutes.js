@@ -7,6 +7,7 @@ const campaignController = new CampaignController();
 
 router.get('/user/token', authMiddleware, campaignController.getCampaignByUserToken.bind(campaignController));
 router.get('/user/:userUid', authMiddleware, campaignController.getCampaignByUserUid.bind(campaignController));
+router.patch('/user/enter', authMiddleware, campaignController.enterCampaign.bind(campaignController));
 
 router.post('/', authMiddleware, campaignController.createCampaign.bind(campaignController));
 router.get('/:uid', authMiddleware, campaignController.getCampaignByUid.bind(campaignController));
