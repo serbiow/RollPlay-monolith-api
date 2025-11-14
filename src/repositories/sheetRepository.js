@@ -38,6 +38,15 @@ class SheetRepository {
         return snap.docs.map((d) => Sheet.fromFirestore(d));
     }
 
+    async getCampaignSheetByUserToken(userUid, campaignUid) {
+        const snap = await this.collection
+            .where('userUid', '==', userUid)
+            .where('campaignUid', '==', campaignUid)
+            .get();
+        if (snap.empty) return [];
+        return snap.docs.map((d) => Sheet.fromFirestore(d));
+    }
+    
     async getSheetByUserUid(userUid) {
         const snap = await this.collection.where('userUid', '==', userUid).get();
         if (snap.empty) return [];
