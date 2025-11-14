@@ -83,6 +83,21 @@ class SheetService {
         return sheets;
     }
 
+    async getCampaignSheetByUserToken(token, campaignUid) {
+        // formatar o token
+        const formattedToken = token.replace('Bearer ', '');
+        const decodedToken = await auth.verifyIdToken(formattedToken);
+
+        // pega o UID do sub do token
+        const uid = decodedToken.user_id;
+
+        const sheets = await this.sheetRepository.getCampaignSheetByUserToken(uid, campaignUid);
+        if (!sheets || sheets.length === 0) {
+            throw new Error("No user sheets found for this campaign.");
+        }
+        return sheets;
+    }
+
     async getSheetByUserUid(userUid) {
         const sheets = await this.sheetRepository.getSheetByUserUid(userUid);
         if (!sheets || sheets.length === 0) {

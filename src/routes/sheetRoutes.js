@@ -7,6 +7,7 @@ const sheetController = new SheetController();
 
 router.get('/campaign/:campaignUid', authMiddleware, sheetController.getSheetByCampaignUid.bind(sheetController));
 router.get('/user/token', authMiddleware, sheetController.getSheetByUserToken.bind(sheetController));
+router.get('/token/:campaignUid', authMiddleware, sheetController.getCampaignSheetByUserToken.bind(sheetController));
 router.get('/user/:userUid', authMiddleware, sheetController.getSheetByUserUid.bind(sheetController));
 
 router.post('/', authMiddleware, sheetController.createSheet.bind(sheetController));

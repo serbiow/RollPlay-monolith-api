@@ -56,6 +56,25 @@ class SheetController {
             return res.status(404).json({ message: error.message });
         }
     }
+    async getCampaignSheetByUserToken(req, res) {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+        
+        const { campaignUid } = req.params;
+        if (!campaignUid) {
+            return res.status(400).json({ message: "UID da sessão inválido." });
+        }
+
+        try {
+            const sheets = await this.sheetService.getCampaignSheetByUserToken(authHeader, campaignUid);
+            return res.status(200).json({ sheets });
+        } catch (error) {
+            console.error("[SheetController::getCampaignSheetByUserToken]:", error);
+            return res.status(404).json({ message: error.message });
+        }
+    }
 
     async getSheetByUserUid(req, res) {
         const { userUid } = req.params;
