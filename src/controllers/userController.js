@@ -28,6 +28,21 @@ export const userController = {
         }
     },
 
+    async getUserByToken(req, res, next) {
+        try {
+            const authHeader = req.headers.authorization;
+            if (!authHeader) {
+                return res.status(401).json(badRequest('Token não fornecido'));
+            }
+
+            const user = await userService.getUserByToken(authHeader);
+            if (!user) return res.status(404).json(notFound('Usuário não encontrado.'));
+            return res.json(ok(user));
+        } catch (err) {
+            next(err);
+        }
+    },
+
     async getUserByEmail(req, res, next) {
         try {
             const { email } = req.params;

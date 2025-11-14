@@ -1,5 +1,6 @@
 import SheetRepository from "../repositories/sheetRepository.js";
 import Sheet from "../models/sheetModel.js";
+import { auth } from "../config/firebase.js";
 
 function normalizeIncoming(data = {}) {
     const out = { ...data };
@@ -84,6 +85,21 @@ class SheetService {
 
     async getSheetByUserUid(userUid) {
         const sheets = await this.sheetRepository.getSheetByUserUid(userUid);
+        if (!sheets || sheets.length === 0) {
+            throw new Error("No sheets found for this user.");
+        }
+        return sheets;
+    }
+
+    async getSheetByUserToken(token) {
+        // formatar o token
+        const formattedToken = token.replace('Bearer ', '');
+        const decodedToken = await auth.verifyIdToken(formattedToken);
+
+        // pega o UID do sub do token
+        const uid = decodedToken.user_id;
+
+        const sheets = await this.sheetRepository.getSheetByUserUid(uid);
         if (!sheets || sheets.length === 0) {
             throw new Error("No sheets found for this user.");
         }

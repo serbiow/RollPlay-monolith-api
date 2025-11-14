@@ -61,6 +61,46 @@ class CampaignController {
         }
     }
 
+    async getCampaignByUserToken(req, res) {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+
+        try {
+            const campaigns = await this.campaignService.getCampaignByUserToken(authHeader);
+            return res.status(200).json({ campaigns });
+        } catch (error) {
+            console.error("[CampaignController::getCampaignByUserToken]:", error);
+            return res.status(404).json({ message: error.message });
+        }
+    }
+
+    async enterCampaign(req, res) {
+        const authHeader = req.headers.authorization;
+        const { campaignUid } = req.body;
+
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+
+        if (!campaignUid) {
+            return res.status(400).json({ message: "UID da campanha é obrigatório." });
+        }
+
+        try {
+            const updatedCampaign = await this.campaignService.enterCampaign(authHeader, campaignUid);
+            return res.status(200).json({
+                message: "Usuário entrou na campanha com sucesso!",
+                campaign: updatedCampaign
+            });
+        } catch (error) {
+            console.error("[CampaignController::enterCampaign]:", error);
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
     async updateCampaign(req, res) {
         const { uid } = req.params;
         const campaignData = req.body;
