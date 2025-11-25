@@ -27,6 +27,9 @@ class UserService {
                 email,
                 password,
                 displayName,
+                title: '',
+                bio: '',
+                userPhoto: '',
             });
         } catch (err) {
             // traduzir erro comum

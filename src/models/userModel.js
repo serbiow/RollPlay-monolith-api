@@ -1,11 +1,11 @@
 class User {
-    constructor(uid, displayName, email, title='', bio='', photoUrl='', isActive = true, createdAt = new Date(), updatedAt = new Date()) {
+    constructor(uid, displayName, email, title='', bio='', userPhoto='', isActive = true, createdAt = new Date(), updatedAt = new Date()) {
         this.uid = uid;
         this.displayName = displayName;
         this.email = email;
         this.title = title;
         this.bio = bio;
-        this.photoUrl = photoUrl;
+        this.userPhoto = userPhoto;
         this.isActive = isActive;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -17,7 +17,7 @@ class User {
             email: this.email,
             title: this.title,
             bio: this.bio,
-            photoUrl: this.photoUrl,
+            userPhoto: this.userPhoto,
             isActive: this.isActive,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
@@ -26,7 +26,7 @@ class User {
 
     static fromFirestore(snapshot, options) {
         const data = snapshot.data(options);
-        return new User(snapshot.id, data.displayName, data.email, data.title, data.bio, data.photoUrl, data.isActive, data.createdAt, data.updatedAt);
+        return new User(snapshot.id, data.displayName, data.email, data.title, data.bio, data.userPhoto, data.isActive, data.createdAt, data.updatedAt);
     }
 }
 
