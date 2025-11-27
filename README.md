@@ -93,6 +93,11 @@ A API estará rodando em `http://localhost:3000` (ou na porta especificada em se
 ### Rolagem de Dados (`/dice`)
 - `POST /dice/roll`: Rola dados. (Corpo: `numDice`, `numSides`)
 
+
+### Api na Azure
+https://rollplaymonolith-e8ezdadmajfvb5fu.eastus-01.azurewebsites.net
+
+
 ## Observações
 
 - A autenticação de usuário (`signIn`, `passwordReset`) deve ser feita no lado do cliente usando o SDK do Firebase Client, e o `idToken` resultante deve ser enviado para o backend para requisições que exigem autenticação.
