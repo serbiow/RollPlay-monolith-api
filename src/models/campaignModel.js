@@ -1,5 +1,5 @@
 class Campaign {
-    constructor(uid, userUid, name, description, players, npcs=[], mapas=[], notas=[], sessoes=[], createdAt = new Date(), updatedAt = new Date()) {
+    constructor(uid, userUid, name, description, players=[], npcs=[], mapas=[], notas=[], sessoes=[], createdAt = new Date(), updatedAt = new Date()) {
         this.uid = uid;
         this.userUid = userUid;
         this.name = name;

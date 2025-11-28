@@ -6,7 +6,7 @@ class CampaignController {
     }
 
     async createCampaign(req, res) {
-        const { userUid, name, description, players } = req.body;
+        const { userUid, name, description } = req.body;
         const uid = req.headers["x-campaign-uid"];
 
         if (!userUid || !name) {
@@ -19,8 +19,8 @@ class CampaignController {
                 userUid,
                 name,
                 description,
-                players,
-                npcs : [],
+                players: [],
+                npcs: [],
                 mapas: [],
                 notas: [],
                 sessoes: []
