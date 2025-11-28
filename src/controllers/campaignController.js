@@ -7,7 +7,7 @@ class CampaignController {
 
     async createCampaign(req, res) {
         const { userUid, name, description, players } = req.body;
-        const uid = req.headers["x-campaign-uid"]; // Assuming UID for the campaign is passed in header or generated
+        const uid = req.headers["x-campaign-uid"];
 
         if (!userUid || !name) {
             return res.status(400).json({ message: "Dados inválidos para criação de campanha." });
@@ -15,11 +15,15 @@ class CampaignController {
 
         try {
             const newCampaignData = {
-                uid: uid || Date.now().toString(), // Simple UID generation if not provided
+                uid: uid || Date.now().toString(),
                 userUid,
                 name,
                 description,
-                players
+                players,
+                npcs : [],
+                mapas: [],
+                notas: [],
+                sessoes: []
             };
             const result = await this.campaignService.createCampaign(newCampaignData);
             return res.status(201).json({ message: "Campanha criada com sucesso!", campaign: result });
