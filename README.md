@@ -94,8 +94,9 @@ A API estará rodando em `http://localhost:3000` (ou na porta especificada em se
 - `POST /dice/roll`: Rola dados. (Corpo: `numDice`, `numSides`)
 
 
-### Api na Azure
-https://rollplaymonolith-e8ezdadmajfvb5fu.eastus-01.azurewebsites.net
+### API na Azure
+https://rollplayapi-fbb4e7a9hqa3ehds.eastus-01.azurewebsites.net
+
 
 
 ## Observações
