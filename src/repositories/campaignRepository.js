@@ -21,11 +21,50 @@ class CampaignRepository {
     }
 
     async getCampaignByUserUid(userUid) {
-        const snapshot = await this.collection.where('userUid', '==', userUid).get();
-        if (snapshot.empty) {
+        if (!userUid) return null;
+
+        const campaignsMap = new Map();
+
+        // 1- puxa as camapanhas que o user é mestre
+        const ownerSnapshot = await this.collection.where('userUid', '==', userUid).get();
+        if (!ownerSnapshot.empty) {
+            ownerSnapshot.docs.forEach(doc => {
+                const camp = Campaign.fromFirestore(doc);
+                if (camp) campaignsMap.set(camp.uid, camp);
+            });
+        }
+
+        // 2- puxa as campanhas que o user é player
+        try {
+            const byUidSnapshot = await this.collection.where('players', 'array-contains', { uid: userUid }).get();
+            if (!byUidSnapshot.empty) {
+                byUidSnapshot.docs.forEach(doc => {
+                    const camp = Campaign.fromFirestore(doc);
+                    if (camp) campaignsMap.set(camp.uid, camp);
+                });
+            }
+        } catch (err) {
+            // ignora e passa pro fallback
+        }
+
+        // última tentativa: varre todas as campanhas (pode ser lento, então só faz se não achou nada antes)
+        if (campaignsMap.size === 0) {
+            const allSnap = await this.collection.get();
+            if (!allSnap.empty) {
+                allSnap.docs.forEach(doc => {
+                    const camp = Campaign.fromFirestore(doc);
+                    if (!camp) return;
+                    const found = (camp.players || []).some(p => p?.uid === userUid || p?.userUid === userUid);
+                    if (found) campaignsMap.set(camp.uid, camp);
+                });
+            }
+        }
+
+        if (campaignsMap.size === 0) {
             return null;
         }
-        return snapshot.docs.map(doc => Campaign.fromFirestore(doc));
+
+        return Array.from(campaignsMap.values());
     }
 
     async updateCampaign(uid, campaignData) {
