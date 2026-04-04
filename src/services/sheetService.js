@@ -77,9 +77,6 @@ class SheetService {
 
     async getSheetByCampaignUid(campaignUid) {
         const sheets = await this.sheetRepository.getSheetByCampaignUid(campaignUid);
-        if (!sheets || sheets.length === 0) {
-            throw new Error("No sheets found for this campaign.");
-        }
         return sheets;
     }
 
@@ -92,17 +89,11 @@ class SheetService {
         const uid = decodedToken.user_id;
 
         const sheets = await this.sheetRepository.getCampaignSheetByUserToken(uid, campaignUid);
-        if (!sheets || sheets.length === 0) {
-            throw new Error("No user sheets found for this campaign.");
-        }
         return sheets;
     }
 
     async getSheetByUserUid(userUid) {
         const sheets = await this.sheetRepository.getSheetByUserUid(userUid);
-        if (!sheets || sheets.length === 0) {
-            throw new Error("No sheets found for this user.");
-        }
         return sheets;
     }
 
@@ -115,9 +106,6 @@ class SheetService {
         const uid = decodedToken.user_id;
 
         const sheets = await this.sheetRepository.getSheetByUserUid(uid);
-        if (!sheets || sheets.length === 0) {
-            throw new Error("No sheets found for this user.");
-        }
         return sheets;
     }
 
