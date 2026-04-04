@@ -28,9 +28,6 @@ class CampaignService {
 
     async getCampaignByUserUid(userUid) {
         const campaigns = await this.campaignRepository.getCampaignByUserUid(userUid);
-        if (!campaigns || campaigns.length === 0) {
-            throw new Error("Nenhuma campanha encontrada para este usuário.");
-        }
         return campaigns;
     }
 
@@ -43,9 +40,6 @@ class CampaignService {
         const uid = decodedToken.user_id;
 
         const campaigns = await this.campaignRepository.getCampaignByUserUid(uid);
-        if (!campaigns || campaigns.length === 0) {
-            throw new Error("Nenhuma campanha encontrada para este usuário.");
-        }
         return campaigns;
     }
 

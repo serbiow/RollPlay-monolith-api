@@ -61,7 +61,7 @@ class CampaignRepository {
         }
 
         if (campaignsMap.size === 0) {
-            return null;
+            return [];
         }
 
         return Array.from(campaignsMap.values());
