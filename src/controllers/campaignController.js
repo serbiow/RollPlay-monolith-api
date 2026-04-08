@@ -6,17 +6,22 @@ class CampaignController {
     }
 
     async createCampaign(req, res) {
-        const { userUid, name, description } = req.body;
+        const { name, description } = req.body;
         const uid = req.headers["x-campaign-uid"];
+        const authHeader = req.headers.authorization;
 
-        if (!userUid || !name) {
+        if (!authHeader) {
+            return res.status(401).json({ message: "Token não fornecido." });
+        }
+
+        if (!name) {
             return res.status(400).json({ message: "Dados inválidos para criação de campanha." });
         }
 
         try {
             const newCampaignData = {
                 uid: uid || Date.now().toString(),
-                userUid,
+                userUid: null,
                 name,
                 description,
                 players: [],
@@ -25,7 +30,7 @@ class CampaignController {
                 notas: [],
                 sessoes: []
             };
-            const result = await this.campaignService.createCampaign(newCampaignData);
+            const result = await this.campaignService.createCampaign(authHeader,newCampaignData);
             return res.status(201).json({ message: "Campanha criada com sucesso!", campaign: result });
         } catch (error) {
             console.error("[CampaignController::createCampaign]:", error);

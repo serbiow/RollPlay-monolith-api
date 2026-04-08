@@ -7,10 +7,17 @@ class CampaignService {
         this.campaignRepository = new CampaignRepository();
     }
 
-    async createCampaign(campaignData) {
+    async createCampaign(token,campaignData) {
+        // formatar o token
+        const formattedToken = token.replace('Bearer ', '');
+        const decodedToken = await auth.verifyIdToken(formattedToken);
+
+        // pega o UID do sub do token
+        const userUid = decodedToken.user_id;
+
         const newCampaign = new Campaign(
             campaignData.uid || Date.now().toString(),
-            campaignData.userUid,
+            campaignData.userUid = userUid,
             campaignData.name,
             campaignData.description || "",
             campaignData.players || []
