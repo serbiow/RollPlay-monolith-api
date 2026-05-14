@@ -20,7 +20,14 @@ class CampaignService {
             campaignData.userUid = userUid,
             campaignData.name,
             campaignData.description || "",
-            campaignData.players || []
+            campaignData.players || [],
+            [], // npcs
+            [], // mapas
+            [], // notas
+            [], // sessoes
+            new Date(), // createdAt
+            new Date(), // updatedAt
+            campaignData.system || 'D&D 5e' // system
         );
         return this.campaignRepository.createCampaign(newCampaign);
     }

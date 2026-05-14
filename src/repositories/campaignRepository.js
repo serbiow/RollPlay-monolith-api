@@ -6,10 +6,19 @@ class CampaignRepository {
         this.collection = db.collection('campaign');
     }
 
+    // Método helper para formatar campanha com playersCount
+    formatCampaignWithPlayersCount(campaign) {
+        return {
+            ...campaign,
+            playersCount: campaign.players?.length || 0
+        };
+    }
+
     async createCampaign(campaignData) {
         const campaignRef = this.collection.doc(campaignData.uid);
         await campaignRef.set(campaignData.toFirestore());
-        return { uid: campaignData.uid, ...campaignData.toFirestore() };
+        const result = { uid: campaignData.uid, ...campaignData.toFirestore() };
+        return this.formatCampaignWithPlayersCount(result);
     }
 
     async getCampaignByUid(uid) {
@@ -17,7 +26,8 @@ class CampaignRepository {
         if (!doc.exists) {
             return null;
         }
-        return Campaign.fromFirestore(doc);
+        const campaign = Campaign.fromFirestore(doc);
+        return this.formatCampaignWithPlayersCount(campaign);
     }
 
     async getCampaignByUserUid(userUid) {
@@ -30,7 +40,7 @@ class CampaignRepository {
         if (!ownerSnapshot.empty) {
             ownerSnapshot.docs.forEach(doc => {
                 const camp = Campaign.fromFirestore(doc);
-                if (camp) campaignsMap.set(camp.uid, camp);
+                if (camp) campaignsMap.set(camp.uid, this.formatCampaignWithPlayersCount(camp));
             });
         }
 
@@ -40,7 +50,7 @@ class CampaignRepository {
             if (!byUidSnapshot.empty) {
                 byUidSnapshot.docs.forEach(doc => {
                     const camp = Campaign.fromFirestore(doc);
-                    if (camp) campaignsMap.set(camp.uid, camp);
+                    if (camp) campaignsMap.set(camp.uid, this.formatCampaignWithPlayersCount(camp));
                 });
             }
         } catch (err) {
@@ -55,7 +65,7 @@ class CampaignRepository {
                     const camp = Campaign.fromFirestore(doc);
                     if (!camp) return;
                     const found = (camp.players || []).some(p => p?.uid === userUid || p?.userUid === userUid);
-                    if (found) campaignsMap.set(camp.uid, camp);
+                    if (found) campaignsMap.set(camp.uid, this.formatCampaignWithPlayersCount(camp));
                 });
             }
         }
@@ -71,7 +81,8 @@ class CampaignRepository {
         const campaignRef = this.collection.doc(uid);
         await campaignRef.update(campaignData);
         const updatedDoc = await campaignRef.get();
-        return Campaign.fromFirestore(updatedDoc);
+        const campaign = Campaign.fromFirestore(updatedDoc);
+        return this.formatCampaignWithPlayersCount(campaign);
     }
 
     async deleteCampaign(uid) {

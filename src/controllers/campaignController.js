@@ -6,7 +6,7 @@ class CampaignController {
     }
 
     async createCampaign(req, res) {
-        const { name, description } = req.body;
+        const { name, description, system } = req.body;
         const uid = req.headers["x-campaign-uid"];
         const authHeader = req.headers.authorization;
 
@@ -24,6 +24,7 @@ class CampaignController {
                 userUid: null,
                 name,
                 description,
+                system: system || 'D&D 5e',
                 players: [],
                 npcs: [],
                 mapas: [],
