@@ -11,6 +11,19 @@ export const userController = {
 
             // enviar objeto de dados; service cria o user no Auth e usa o UID gerado
             const user = await userService.createUser({ email, password, displayName });
+
+            await fetch("https://rollplay.app.n8n.cloud/webhook/user-created", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    name: user.displayName
+                })
+            });
+
             return res.status(201).json(created(user, 'Usuário criado com sucesso.'));
         } catch (err) {
             next(err);
