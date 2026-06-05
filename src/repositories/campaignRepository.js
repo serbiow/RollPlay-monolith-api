@@ -44,30 +44,21 @@ class CampaignRepository {
             });
         }
 
-        // 2- puxa as campanhas que o user é player
-        try {
-            const byUidSnapshot = await this.collection.where('players', 'array-contains', { uid: userUid }).get();
-            if (!byUidSnapshot.empty) {
-                byUidSnapshot.docs.forEach(doc => {
-                    const camp = Campaign.fromFirestore(doc);
-                    if (camp) campaignsMap.set(camp.uid, this.formatCampaignWithPlayersCount(camp));
-                });
-            }
-        } catch (err) {
-            // ignora e passa pro fallback
-        }
+        // 2- varre todas as campanhas e adiciona se o user for player
+        // Nota: Firestore não permite consultar facilmente por subcampo dentro de arrays de mapas,
+        // então fazemos uma varredura e filtramos localmente. Mantemos um Map para evitar duplicatas.
+        const allSnap = await this.collection.get();
+        if (!allSnap.empty) {
+            allSnap.docs.forEach(doc => {
+                const camp = Campaign.fromFirestore(doc);
+                if (!camp) return;
 
-        // última tentativa: varre todas as campanhas (pode ser lento, então só faz se não achou nada antes)
-        if (campaignsMap.size === 0) {
-            const allSnap = await this.collection.get();
-            if (!allSnap.empty) {
-                allSnap.docs.forEach(doc => {
-                    const camp = Campaign.fromFirestore(doc);
-                    if (!camp) return;
-                    const found = (camp.players || []).some(p => p?.uid === userUid || p?.userUid === userUid);
-                    if (found) campaignsMap.set(camp.uid, this.formatCampaignWithPlayersCount(camp));
-                });
-            }
+                // já adicionada como owner? pula
+                if (campaignsMap.has(camp.uid)) return;
+
+                const found = (camp.players || []).some(p => p?.uid === userUid || p?.userUid === userUid);
+                if (found) campaignsMap.set(camp.uid, this.formatCampaignWithPlayersCount(camp));
+            });
         }
 
         if (campaignsMap.size === 0) {
