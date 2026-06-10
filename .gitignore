@@ -1,2 +1,51 @@
-# Ignorar node_modules
+# Node
 node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*            
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.envrc
+
+# Firebase / Google service account
+*.json            
+firebase-debug.log
+.firebase
+.firebaserc
+
+# Build / output
+dist/
+build/
+coverage/
+*.tgz
+
+# Azure / deployment
+.azure/
+publish/
+*.publishsettings
+*.Publish.xml
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Misc
+.env.example    
+.vscode/settings.json
+.history
