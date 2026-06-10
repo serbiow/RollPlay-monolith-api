@@ -20,6 +20,7 @@ class CampaignService {
             campaignData.userUid = userUid,
             campaignData.name,
             campaignData.description || "",
+            campaignData.imageUrl || "",
             campaignData.players || [],
             [], // npcs
             [], // mapas

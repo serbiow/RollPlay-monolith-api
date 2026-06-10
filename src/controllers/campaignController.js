@@ -24,6 +24,7 @@ class CampaignController {
                 userUid: null,
                 name,
                 description,
+                imageUrl: '',
                 system: system || 'D&D 5e',
                 players: [],
                 npcs: [],

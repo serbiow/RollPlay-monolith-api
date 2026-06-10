@@ -1,9 +1,10 @@
 class Campaign {
-    constructor(uid, userUid, name, description, players=[], npcs=[], mapas=[], notas=[], sessoes=[], createdAt = new Date(), updatedAt = new Date(), system = 'D&D 5e') {
+    constructor(uid, userUid, name, description, imageUrl, players=[], npcs=[], mapas=[], notas=[], sessoes=[], createdAt = new Date(), updatedAt = new Date(), system = 'D&D 5e') {
         this.uid = uid;
         this.userUid = userUid;
         this.name = name;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.players = players;
         this.npcs = npcs;
         this.mapas = mapas;
@@ -19,6 +20,7 @@ class Campaign {
             userUid: this.userUid,
             name: this.name,
             description: this.description,
+            imageUrl: this.imageUrl,
             players: this.players,
             npcs: this.npcs,
             mapas: this.mapas,
@@ -37,6 +39,7 @@ class Campaign {
             data.userUid,
             data.name,
             data.description,
+            data.imageUrl,
             data.players,
             data.npcs,
             data.mapas,

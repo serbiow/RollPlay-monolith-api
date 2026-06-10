@@ -1,6 +1,7 @@
 import UserRepository from "../repositories/userRepository.js";
 import User from "../models/userModel.js";
 import { auth } from "../config/firebase.js";
+import AppError from "../utils/AppError.js";
 
 class UserService {
     constructor() {
@@ -11,13 +12,13 @@ class UserService {
     async createUser(userData) {
         const { email, password, displayName } = userData || {};
         if (!email || !password) {
-            throw new Error("email e password são obrigatórios.");
+            throw new AppError("email e password são obrigatórios.", 400);
         }
 
         // prevenir duplicação no Firestore (opcional, Auth já falhará se email existir)
         const existingByEmail = await this.userRepository.getUserByEmail(email);
         if (existingByEmail) {
-            throw new Error("User with this email already exists.");
+            throw new AppError("Este email já está cadastrado. Tente fazer login ou use outro email.", 409);
         }
 
         // cria usuário no Firebase Auth para gerar UID aleatório
@@ -34,9 +35,9 @@ class UserService {
         } catch (err) {
             // traduzir erro comum
             if (err.code === 'auth/email-already-exists' || err.code === 'auth/email-already-in-use') {
-                throw new Error('Email já está em uso.');
+                throw new AppError('Este email já está cadastrado. Tente fazer login ou use outro email.', 409);
             }
-            throw err;
+            throw new AppError(err.message || 'Erro ao criar usuário', 400);
         }
 
         const uid = userRecord.uid;
@@ -47,7 +48,7 @@ class UserService {
     async getUserByUid(uid) {
         const user = await this.userRepository.getUserByUid(uid);
         if (!user) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         return user;
     }
@@ -62,7 +63,7 @@ class UserService {
 
         const user = await this.userRepository.getUserByUid(uid);
         if (!user) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         return user;
     }
@@ -70,7 +71,7 @@ class UserService {
     async getUserByEmail(email) {
         const user = await this.userRepository.getUserByEmail(email);
         if (!user) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         return user;
     }
@@ -82,7 +83,7 @@ class UserService {
     async updateUser(uid, userData) {
         const existingUser = await this.userRepository.getUserByUid(uid);
         if (!existingUser) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         // Atualizar apenas os campos fornecidos
         const updatedData = { ...existingUser.toFirestore(), ...userData, updatedAt: new Date() };
@@ -92,7 +93,7 @@ class UserService {
     async deleteUser(uid) {
         const existingUser = await this.userRepository.getUserByUid(uid);
         if (!existingUser) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         // opcional: remover do Firebase Auth também
         try {
@@ -106,7 +107,7 @@ class UserService {
     async deactivateUser(uid) {
         const existingUser = await this.userRepository.getUserByUid(uid);
         if (!existingUser) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         return this.userRepository.deactivateUser(uid);
     }
@@ -114,7 +115,7 @@ class UserService {
     async reactivateUser(uid) {
         const existingUser = await this.userRepository.getUserByUid(uid);
         if (!existingUser) {
-            throw new Error("User not found.");
+            throw new AppError("Usuário não encontrado.", 404);
         }
         return this.userRepository.reactivateUser(uid);
     }
