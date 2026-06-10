@@ -4,21 +4,47 @@ class Sheet {
         uid,
         userUid,
         campaignUid,
-        name,
-        characterClass,
+        name = "",
+        characterClass = "",
         subclass = null,
-        level,
-        race,
+        level = 1,
+        race = "",
         species = null,
-        alignment,
-        background,
+        alignment = "",
+        background = "",
         xp = 0,
 
         proficiencyBonus = null,
         inspirationHeroica = false,
 
-        attributes = {},                // { str:{score,mod,saveProficient,saveBonus}, ... }
-        skills = {},                    // { athletics:{ability,proficient,bonus}, ... }
+        attributes = {
+            str: { score: 10, mod: 0, saveProficient: false, saveBonus: 0 },
+            dex: { score: 10, mod: 0, saveProficient: false, saveBonus: 0 },
+            con: { score: 10, mod: 0, saveProficient: false, saveBonus: 0 },
+            int: { score: 10, mod: 0, saveProficient: false, saveBonus: 0 },
+            wis: { score: 10, mod: 0, saveProficient: false, saveBonus: 0 },
+            cha: { score: 10, mod: 0, saveProficient: false, saveBonus: 0 }
+        },
+        skills = {
+            acrobatics: { ability: "dex", proficient: false, bonus: 0 },
+            animalHandling: { ability: "wis", proficient: false, bonus: 0 },
+            arcana: { ability: "int", proficient: false, bonus: 0 },
+            athletics: { ability: "str", proficient: false, bonus: 0 },
+            deception: { ability: "cha", proficient: false, bonus: 0 },
+            history: { ability: "int", proficient: false, bonus: 0 },
+            insight: { ability: "wis", proficient: false, bonus: 0 },
+            intimidation: { ability: "cha", proficient: false, bonus: 0 },
+            investigation: { ability: "int", proficient: false, bonus: 0 },
+            medicine: { ability: "wis", proficient: false, bonus: 0 },
+            nature: { ability: "int", proficient: false, bonus: 0 },
+            perception: { ability: "wis", proficient: false, bonus: 0 },
+            performance: { ability: "cha", proficient: false, bonus: 0 },
+            persuasion: { ability: "cha", proficient: false, bonus: 0 },
+            religion: { ability: "int", proficient: false, bonus: 0 },
+            sleightOfHand: { ability: "dex", proficient: false, bonus: 0 },
+            stealth: { ability: "dex", proficient: false, bonus: 0 },
+            survival: { ability: "wis", proficient: false, bonus: 0 }
+        },
 
         passivePerception = null,
         size = "Médio",
@@ -46,10 +72,14 @@ class Sheet {
             tools: []
         },
 
+        resistances = { damage: [], condition: [] },
+        vulnerabilities = { damage: [], condition: [] },
+        immunities = { damage: [], condition: [] },
+
         languages = [],
         treinamentoEProfEquip = { armadura: [], armas: [], ferramentas: [] },
 
-        weapons = [],                   // [{ name, bonusOrDC, damageType, notes }]
+        weapons = [], // [{ name, bonusOrDC, damageType, notes }]
 
         features = {
             classFeatures: [],
@@ -59,13 +89,13 @@ class Sheet {
 
         inventory = {
             equipment: [],
-            magicItemsAttuned: [],        // até 3, se quiser validar
+            magicItemsAttuned: [], // até 3, se quiser validar
             coins: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 }
         },
 
         spellcasting = {
             hasSpellcasting: false,
-            spellcastingAbility: null,    // "int" | "wis" | "cha"
+            spellcastingAbility: null, // "int" | "wis" | "cha"
             spellSaveDC: null,
             spellAttackBonus: null,
             spellcastingMod: null,
@@ -87,10 +117,12 @@ class Sheet {
         },
 
         appearance = "",
+        characterImage = null, // URL ou caminho para imagem
         backstoryPersonality = "",
         ideals = "",
         bonds = "",
         flaws = "",
+        history = "",
         notes = "",
 
         createdAt = new Date(),
@@ -126,6 +158,9 @@ class Sheet {
         this.deathSaves = deathSaves;
 
         this.equipmentProficiencies = equipmentProficiencies;
+        this.resistances = resistances;
+        this.vulnerabilities = vulnerabilities;
+        this.immunities = immunities;
         this.languages = languages;
         this.treinamentoEProfEquip = treinamentoEProfEquip;
 
@@ -136,12 +171,14 @@ class Sheet {
         this.spellcasting = spellcasting;
 
         this.appearance = appearance;
+        this.characterImage = characterImage;
         this.backstoryPersonality = backstoryPersonality;
         this.ideals = ideals;
         this.bonds = bonds;
         this.flaws = flaws;
-
+        this.history = history;
         this.notes = notes;
+
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.schemaVersion = schemaVersion;
@@ -177,6 +214,9 @@ class Sheet {
             deathSaves: this.deathSaves,
 
             equipmentProficiencies: this.equipmentProficiencies,
+            resistances: this.resistances,
+            vulnerabilities: this.vulnerabilities,
+            immunities: this.immunities,
             languages: this.languages,
             treinamentoEProfEquip: this.treinamentoEProfEquip,
 
@@ -187,12 +227,14 @@ class Sheet {
             spellcasting: this.spellcasting,
 
             appearance: this.appearance,
+            characterImage: this.characterImage,
             backstoryPersonality: this.backstoryPersonality,
             ideals: this.ideals,
             bonds: this.bonds,
             flaws: this.flaws,
-
+            history: this.history,
             notes: this.notes,
+            
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             schemaVersion: this.schemaVersion

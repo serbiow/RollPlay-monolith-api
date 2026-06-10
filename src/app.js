@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import sheetRoutes from './routes/sheetRoutes.js';
 import campaignRoutes from './routes/campaignRoutes.js';
 import diceRoutes from './routes/diceRoutes.js';
+import { errorHandler } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ app.use('/dice', diceRoutes);
 app.get('/', (req, res) => {
     res.send('RollPlay Monolith API is running!');
 });
+
+// Error Handler Middleware (deve ser o último)
+app.use(errorHandler);
 
 export default app;
 

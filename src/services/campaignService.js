@@ -7,13 +7,28 @@ class CampaignService {
         this.campaignRepository = new CampaignRepository();
     }
 
-    async createCampaign(campaignData) {
+    async createCampaign(token,campaignData) {
+        // formatar o token
+        const formattedToken = token.replace('Bearer ', '');
+        const decodedToken = await auth.verifyIdToken(formattedToken);
+
+        // pega o UID do sub do token
+        const userUid = decodedToken.user_id;
+
         const newCampaign = new Campaign(
             campaignData.uid || Date.now().toString(),
-            campaignData.userUid,
+            campaignData.userUid = userUid,
             campaignData.name,
             campaignData.description || "",
-            campaignData.players || []
+            campaignData.imageUrl || "",
+            campaignData.players || [],
+            [], // npcs
+            [], // mapas
+            [], // notas
+            [], // sessoes
+            new Date(), // createdAt
+            new Date(), // updatedAt
+            campaignData.system || 'D&D 5e' // system
         );
         return this.campaignRepository.createCampaign(newCampaign);
     }
@@ -28,9 +43,6 @@ class CampaignService {
 
     async getCampaignByUserUid(userUid) {
         const campaigns = await this.campaignRepository.getCampaignByUserUid(userUid);
-        if (!campaigns || campaigns.length === 0) {
-            throw new Error("Nenhuma campanha encontrada para este usuário.");
-        }
         return campaigns;
     }
 
@@ -43,9 +55,6 @@ class CampaignService {
         const uid = decodedToken.user_id;
 
         const campaigns = await this.campaignRepository.getCampaignByUserUid(uid);
-        if (!campaigns || campaigns.length === 0) {
-            throw new Error("Nenhuma campanha encontrada para este usuário.");
-        }
         return campaigns;
     }
 

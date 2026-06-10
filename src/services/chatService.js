@@ -6,8 +6,8 @@ class ChatService {
     this.chatRepository = new ChatRepository();
   }
 
-  async listMessages(campaignUid) {
-    return this.chatRepository.getMessagesByCampaignUid(campaignUid);
+  async listMessages(campaignUid, limit = 50, before = null) {
+    return this.chatRepository.getMessagesByCampaignUid(campaignUid, limit, before);
   }
 
   async sendMessage({ campaignUid, senderId, senderName, content, type }) {
