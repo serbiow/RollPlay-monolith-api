@@ -1,4 +1,6 @@
 import UserRepository from "../repositories/userRepository.js";
+import CampaignRepository from "../repositories/campaignRepository.js";
+import SheetRepository from "../repositories/sheetRepository.js";
 import User from "../models/userModel.js";
 import { auth } from "../config/firebase.js";
 import AppError from "../utils/AppError.js";
@@ -6,6 +8,8 @@ import AppError from "../utils/AppError.js";
 class UserService {
     constructor() {
         this.userRepository = new UserRepository();
+        this.campaignRepository = new CampaignRepository();
+        this.sheetRepository = new SheetRepository();
     }
 
     // agora recebe um objeto { email, password, displayName }
@@ -92,15 +96,31 @@ class UserService {
 
     async deleteUser(uid) {
         const existingUser = await this.userRepository.getUserByUid(uid);
+
         if (!existingUser) {
             throw new AppError("Usuário não encontrado.", 404);
         }
+
+        // Buscar campanhas em que o usuário é mestre
+        const userCampaigns = await this.campaignRepository.getCampaignByUserUid(uid);
+
+        const ownedCampaigns = (userCampaigns || []).filter(
+            campaign => campaign.userUid === uid
+        );
+
+        // Deletar campanhas em que ele é mestre e as fichas dessas campanhas
+        for (const campaign of ownedCampaigns) {
+            await this.sheetRepository.deleteSheetsByCampaignUid(campaign.uid);
+            await this.campaignRepository.deleteCampaign(campaign.uid);
+        }
+
         // opcional: remover do Firebase Auth também
         try {
             await auth.deleteUser(uid);
         } catch (err) {
             // se não existir no Auth, apenas prosseguir com remoção no Firestore
         }
+
         return this.userRepository.deleteUser(uid);
     }
 

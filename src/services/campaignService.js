@@ -1,5 +1,6 @@
 import CampaignRepository from "../repositories/campaignRepository.js";
 import UserRepository from "../repositories/userRepository.js";
+import SheetRepository from "../repositories/sheetRepository.js";
 import Campaign from "../models/campaignModel.js";
 import { auth } from "../config/firebase.js";
 
@@ -7,6 +8,7 @@ class CampaignService {
     constructor() {
         this.campaignRepository = new CampaignRepository();
         this.userRepository = new UserRepository();
+        this.sheetRepository = new SheetRepository();
     }
 
     async createCampaign(token, campaignData) {
@@ -121,9 +123,13 @@ class CampaignService {
 
     async deleteCampaign(uid) {
         const existingCampaign = await this.campaignRepository.getCampaignByUid(uid);
+
         if (!existingCampaign) {
             throw new Error("Campanha não encontrada.");
         }
+
+        await this.sheetRepository.deleteSheetsByCampaignUid(uid);
+
         return this.campaignRepository.deleteCampaign(uid);
     }
 }

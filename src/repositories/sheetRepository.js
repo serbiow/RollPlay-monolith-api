@@ -46,7 +46,7 @@ class SheetRepository {
         if (snap.empty) return [];
         return snap.docs.map((d) => Sheet.fromFirestore(d));
     }
-    
+
     async getSheetByUserUid(userUid) {
         const snap = await this.collection.where('userUid', '==', userUid).get();
         if (snap.empty) return [];
@@ -62,6 +62,24 @@ class SheetRepository {
     async deleteSheet(uid) {
         await this.collection.doc(uid).delete();
         return { message: 'Sheet deleted successfully' };
+    }
+
+    async deleteSheetsByCampaignUid(campaignUid) {
+        const snap = await this.collection.where('campaignUid', '==', campaignUid).get();
+
+        if (snap.empty) {
+            return { deletedSheets: 0 };
+        }
+
+        const batch = db.batch();
+
+        snap.docs.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+
+        return { deletedSheets: snap.size };
     }
 }
 
