@@ -1,10 +1,12 @@
 import CampaignRepository from "../repositories/campaignRepository.js";
+import UserRepository from "../repositories/userRepository.js";
 import Campaign from "../models/campaignModel.js";
 import { auth } from "../config/firebase.js";
 
 class CampaignService {
     constructor() {
         this.campaignRepository = new CampaignRepository();
+        this.userRepository = new UserRepository();
     }
 
     async createCampaign(token, campaignData) {
@@ -35,10 +37,17 @@ class CampaignService {
 
     async getCampaignByUid(uid) {
         const campaign = await this.campaignRepository.getCampaignByUid(uid);
+
         if (!campaign) {
             throw new Error("Campanha não encontrada.");
         }
-        return campaign;
+
+        const owner = await this.userRepository.getUserByUid(campaign.userUid);
+
+        return {
+            ...campaign,
+            ownerName: owner?.displayName || "Mestre não encontrado"
+        };
     }
 
     async getCampaignByUserUid(userUid) {
