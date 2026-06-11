@@ -7,7 +7,7 @@ class CampaignService {
         this.campaignRepository = new CampaignRepository();
     }
 
-    async createCampaign(token,campaignData) {
+    async createCampaign(token, campaignData) {
         // formatar o token
         const formattedToken = token.replace('Bearer ', '');
         const decodedToken = await auth.verifyIdToken(formattedToken);
@@ -74,9 +74,20 @@ class CampaignService {
         }
 
         // verificar se o jogador ja ta na campanha
-        const existingPlayer = campaign.players.find(player => player.userUid === userUid);
+        if (campaign.userUid === userUid) {
+            throw new Error("Você já é o dono desta campanha.");
+        }
+
+        const existingPlayer = (campaign.players || []).some(player => {
+            if (typeof player === 'string') {
+                return player === userUid;
+            }
+
+            return player?.userUid === userUid || player?.uid === userUid;
+        });
+
         if (existingPlayer) {
-            throw new Error("Usuário já está na campanha.");
+            throw new Error("Você já participa desta campanha.");
         }
 
         // formar o novo jogador
